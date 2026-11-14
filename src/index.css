@@ -1,0 +1,48 @@
+@import "@fontsource-variable/source-sans-3";
+@import "tailwindcss";
+
+:root {
+  --primary: #17365d;
+  --medical: #3b82c4;
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --text: #253247;
+  --text-secondary: #748094;
+  --success: #23845b;
+  --warning: #d69b35;
+  --danger: #d94b4b;
+  --border: #e3e8f0;
+}
+
+@theme inline {
+  --font-sans: "Source Sans 3 Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: var(--primary);
+  --color-medical: var(--medical);
+  --color-app: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--text);
+  --color-muted: var(--text-secondary);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-line: var(--border);
+  --shadow-card: 0 1px 2px rgb(23 54 93 / 0.04), 0 4px 16px rgb(23 54 93 / 0.06);
+  --radius-card: 0.875rem;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
