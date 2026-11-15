@@ -3,7 +3,8 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::blank_to_none;
-use crate::application::growth::{GrowthChart, ReferencePoint};
+use crate::application::growth::{GrowthChart, MeasurementScores};
+use crate::application::who_lms::{Score, SdCurvePoint};
 use crate::domain::models::{GrowthData, Record};
 
 /// `weight_kg` / `height_cm` / `head_cm` map to `poids_kg` / `taille_cm` / `perimetre_cranien_cm`.
@@ -61,6 +62,8 @@ pub struct GrowthPoint {
     pub weight_kg: Option<f64>,
     pub height_cm: Option<f64>,
     pub head_cm: Option<f64>,
+    pub bmi: Option<f64>,
+    pub scores: MeasurementScores,
 }
 
 #[derive(Debug, Serialize)]
@@ -68,8 +71,9 @@ pub struct GrowthChartData {
     pub source: String,
     pub reviewed: bool,
     pub points: Vec<GrowthPoint>,
-    /// Keys `weight_kg`, `height_cm`, `head_cm`. Only weight-for-age reference data is embedded.
-    pub references: BTreeMap<&'static str, Vec<ReferencePoint>>,
+    /// Keys: weight_kg, height_cm, head_cm, bmi — each a list of SD curve points.
+    pub references: BTreeMap<&'static str, Vec<SdCurvePoint>>,
+    pub available_indicators: Vec<&'static str>,
 }
 
 impl From<GrowthChart> for GrowthChartData {
@@ -85,14 +89,29 @@ impl From<GrowthChart> for GrowthChartData {
                     weight_kg: data.poids_kg,
                     height_cm: data.taille_cm,
                     head_cm: data.perimetre_cranien_cm,
+                    bmi: point.bmi,
+                    scores: point.scores,
                 }
             })
             .collect();
         let references = BTreeMap::from([
-            ("weight_kg", chart.weight_reference),
-            ("height_cm", Vec::new()),
-            ("head_cm", Vec::new()),
+            ("weight_kg", chart.references.weight_kg),
+            ("height_cm", chart.references.height_cm),
+            ("head_cm", chart.references.head_cm),
+            ("bmi", chart.references.bmi),
         ]);
-        Self { source: chart.source, reviewed: chart.reviewed, points, references }
+        Self {
+            source: chart.source,
+            reviewed: chart.reviewed,
+            points,
+            references,
+            available_indicators: chart.available_indicators,
+        }
     }
+}
+
+// Re-export Score shape for serde (already on MeasurementScores).
+#[allow(dead_code)]
+fn _score_type_check(s: Score) -> Score {
+    s
 }

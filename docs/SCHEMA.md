@@ -26,7 +26,8 @@ Base SQLite chiffrée (SQLCipher), clés primaires UUID (`TEXT`), `FOREIGN KEY` 
 | --- | --- |
 | `consultations` | Date-heure, type, motif, mesures, examen, diagnostic, traitement, conseils, `status` (`draft` / `finalized`), `finalized_at` |
 | `consultation_amendments` | Amendements append-only : motif, date, version précédente |
-| `growth_measurements` | `patient_id`, `measured_at`, poids, taille, PC, notes — index `(patient_id, measured_at)` |
+| `growth_measurements` | `patient_id`, `measured_at`, poids, taille, PC, notes — index `(patient_id, measured_at)`. Upsert depuis une consultation finalisée/amendée (même date). |
+| Références OMS (fichiers) | `src-tauri/src/database/who/*.json` — LMS OMS 2006 (0–5 ans, jours) et OMS 2007 (5–19 ans, mois) : WFA, LHFA, HCFA, BFA. Voir `manifest.json`. Pas d'extrapolation hors `age_min`/`age_max`. |
 | `vaccination_schedule_versions` / `_items` | Calendrier versionné (source, validation clinique) |
 | `vaccination_records` | Statut (`done`, `upcoming`, `overdue`, `unknown`), dates, lot, observations |
 

@@ -282,8 +282,23 @@ fn consultation_history(conn: &Connection, patient_id: &str) -> AppResult<String
 fn growth_sheet(conn: &Connection, patient_id: &str) -> AppResult<String> {
     let patient = patients::get(conn, patient_id)?.patient;
     let chart = growth::chart(conn, patient_id)?;
+    let score = |s: &Option<crate::application::who_lms::Score>| match s {
+        Some(v) => format!("z={:.2} · P{:.0}", v.z, v.percentile),
+        None => "—".into(),
+    };
     let measurements = table(
-        &["Date", "Âge (mois)", "Poids", "Taille", "Périmètre crânien", "Notes"],
+        &[
+            "Date",
+            "Âge (mois)",
+            "Poids",
+            "Z/Poids",
+            "Taille",
+            "Z/Taille",
+            "PC",
+            "Z/PC",
+            "IMC",
+            "Z/IMC",
+        ],
         chart
             .points
             .iter()
@@ -293,9 +308,13 @@ fn growth_sheet(conn: &Connection, patient_id: &str) -> AppResult<String> {
                     esc(date_part(&m.measured_at)),
                     format!("{:.1}", point.age_months),
                     num(&m.poids_kg, "kg"),
+                    score(&point.scores.weight_kg),
                     num(&m.taille_cm, "cm"),
+                    score(&point.scores.height_cm),
                     num(&m.perimetre_cranien_cm, "cm"),
-                    opt(&m.notes),
+                    score(&point.scores.head_cm),
+                    point.bmi.map(|v| format!("{v:.1}")).unwrap_or_else(|| "—".into()),
+                    score(&point.scores.bmi),
                 ]
             })
             .collect(),
@@ -304,12 +323,12 @@ fn growth_sheet(conn: &Connection, patient_id: &str) -> AppResult<String> {
         String::new()
     } else {
         format!(
-            "<p class=\"warning\">Courbes de référence ({}) : jeu de données partiel, non validé par le médecin.</p>",
+            "<p class=\"warning\">Références OMS LMS ({}) : tables locales en attente de validation clinique. Aucun diagnostic automatique.</p>",
             esc(&chart.source)
         )
     };
-    let body = format!("<h2>Croissance — {}</h2>{measurements}{reference_note}", full_name(&patient));
-    page(conn, "Courbes de croissance", &body)
+    let body = format!("<h2>Courbe de croissance — {}</h2>{measurements}{reference_note}", full_name(&patient));
+    page(conn, "Courbe de croissance", &body)
 }
 
 fn vaccination_table(conn: &Connection, patient_id: &str) -> AppResult<String> {

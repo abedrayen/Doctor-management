@@ -16,6 +16,9 @@ target/
 cargo-build.log
 *.local
 
+# WHO conversion scratch (source packages); committed JSON lives in src-tauri/src/database/who/
+scripts/who-raw/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -18,9 +18,12 @@
 ## Consultations
 - Brouillon modifiable ; finalisation avec confirmation ; consultation finalisée jamais écrasée (amendement + motif).
 
-## Croissance et vaccinations
-- Courbes poids / taille / PC selon l'âge ; mention « échantillon local en attente de validation clinique » tant que non validé.
-- Statuts Effectué, À venir, En retard, Non renseigné ; ajout et modification.
+## Croissance (DSP) et vaccinations
+- Une seule **Courbe de croissance** avec sélecteur Poids / Taille / PC / IMC ; courbes OMS −3…+3 ET ; tooltip date, âge, valeur, z-score, percentile.
+- Tables LMS OMS 2006 (0–60 mois) et 2007 (5–19 ans) locales ; PC hors plage OMS masqué ; pas d'extrapolation.
+- Finaliser une consultation avec constantes → mesure de croissance enregistrée.
+- Mention « en attente de validation clinique » tant que `reviewed === false` ; aucun diagnostic automatique.
+- Vaccinations : statuts Effectué, À venir, En retard, Non renseigné ; ajout et modification.
 
 ## Rendez-vous, documents, paramètres
 - Vues jour / semaine / mois ; statuts Confirmé, En attente, Terminé, Annulé, Absent.

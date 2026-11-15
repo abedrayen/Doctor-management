@@ -6,6 +6,7 @@ pub mod dashboard;
 pub mod documents;
 pub mod growth;
 pub mod patients;
+pub mod who_lms;
 pub mod pdf;
 pub mod settings;
 pub mod vaccinations;

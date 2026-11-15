@@ -37,9 +37,10 @@ export const VACCINATION_STATUS = {
 export type VaccinationStatus = keyof typeof VACCINATION_STATUS;
 
 export const GROWTH_METRIC = {
-  weight_kg: { label: "Poids", unit: "kg" },
-  height_cm: { label: "Taille", unit: "cm" },
-  head_cm: { label: "Périmètre crânien", unit: "cm" },
+  weight_kg: { label: "Poids pour âge", unit: "kg", short: "Poids" },
+  height_cm: { label: "Taille pour âge", unit: "cm", short: "Taille" },
+  head_cm: { label: "Périmètre crânien pour âge", unit: "cm", short: "PC" },
+  bmi: { label: "IMC pour âge", unit: "kg/m²", short: "IMC" },
 } as const;
 export type GrowthMetric = keyof typeof GROWTH_METRIC;
 
@@ -207,28 +208,46 @@ export interface GrowthMeasurement extends GrowthMeasurementInput {
   id: string;
 }
 
+export interface GrowthScore {
+  z: number;
+  percentile: number;
+}
+
 export interface GrowthPoint {
   measured_at: string;
   age_months: number;
   weight_kg: number | null;
   height_cm: number | null;
   head_cm: number | null;
+  bmi: number | null;
+  scores: {
+    weight_kg?: GrowthScore | null;
+    height_cm?: GrowthScore | null;
+    head_cm?: GrowthScore | null;
+    bmi?: GrowthScore | null;
+  };
 }
 
+/** WHO SD reference curve point (−3 … +3). */
 export interface GrowthReferencePoint {
   age_months: number;
-  p3: number;
-  p50: number;
-  p97: number;
+  sd_m3: number;
+  sd_m2: number;
+  sd_m1: number;
+  sd_0: number;
+  sd_p1: number;
+  sd_p2: number;
+  sd_p3: number;
 }
 
 export interface GrowthChartData {
-  /** Label of the local reference dataset (e.g. "OMS - échantillon local v0"). */
+  /** Provenance of the local WHO LMS datasets. */
   source: string;
   /** False until the doctor has clinically reviewed the reference data. */
   reviewed: boolean;
   points: GrowthPoint[];
   references: Record<GrowthMetric, GrowthReferencePoint[]>;
+  available_indicators: GrowthMetric[];
 }
 
 /* ---------- Vaccinations ---------- */

@@ -96,6 +96,6 @@ Optionally keep `target\` outside OneDrive (e.g. set `CARGO_TARGET_DIR=C:\cargo-
 
 ## Avertissement clinique / Clinical notice
 
-**FR** — Les courbes OMS et le calendrier vaccinal fournis sont des **jeux de données locaux d'exemple** : ils doivent être validés par le médecin avant tout usage clinique. L'application ne pose aucun diagnostic et n'enregistre jamais une vaccination automatiquement.
+**FR** — Les tables LMS OMS (2006 / 2007) et le calendrier vaccinal sont **embarqués localement** (`src-tauri/src/database/who/`) mais doivent être **validés par le médecin** avant usage clinique (`reviewed: false`). L'application calcule z-scores et percentiles, n'extrapole pas hors plages OMS, ne pose aucun diagnostic et n'enregistre jamais une vaccination automatiquement.
 
-**EN** — The bundled WHO growth curves and vaccination schedule are **local sample datasets** that must be clinically reviewed by the doctor before real use. The app never diagnoses and never records a vaccination automatically.
+**EN** — Bundled WHO LMS tables (2006 / 2007) and the vaccination schedule are **local offline datasets** that must be clinically reviewed before real use (`reviewed: false`). The app computes z-scores/percentiles, never extrapolates beyond WHO ranges, never diagnoses, and never auto-records vaccinations.

@@ -20,7 +20,7 @@ export const NAV_ITEMS: { to: string; label: string; icon: LucideIcon; end?: boo
   { to: "/consultations", label: "Consultations", icon: Stethoscope },
   { to: "/rendez-vous", label: "Rendez-vous", icon: CalendarDays },
   { to: "/vaccinations", label: "Vaccinations", icon: Syringe },
-  { to: "/croissance", label: "Suivi de croissance", icon: TrendingUp },
+  { to: "/croissance", label: "Courbe de croissance", icon: TrendingUp },
   { to: "/documents", label: "Documents", icon: FileText },
   { to: "/parametres", label: "Paramètres", icon: Settings },
 ];

@@ -7,7 +7,8 @@ Exécuter avec la carte réseau désactivée (Wi-Fi et Ethernet coupés).
 - [ ] Première configuration : création du médecin puis connexion
 - [ ] Création d'un patient (avec avertissement de doublon) et consultation du dossier
 - [ ] Consultation : brouillon → finalisation → amendement
-- [ ] Mesure de croissance et courbes affichées
+- [ ] Courbe de croissance unique : changement d'indicateur, tooltip z-score/percentile, historique
+- [ ] Finaliser une consultation avec poids/taille/PC → mesure visible dans la courbe
 - [ ] Vaccination enregistrée, statuts affichés
 - [ ] Rendez-vous créé, modifié, annulé (vues jour / semaine / mois)
 - [ ] Document joint, aperçu (image + PDF), impression

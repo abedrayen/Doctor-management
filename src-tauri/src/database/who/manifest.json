@@ -1,0 +1,147 @@
+{
+  "description": "Local WHO LMS reference datasets for Cabinet Pédiatrique DSP module",
+  "reviewed": false,
+  "note": "Datasets are transcribed from WHO-published LMS tables via CRAN anthro/anthroplus. Clinical review by the physician is required before production use. Do not invent or extrapolate beyond age_min/age_max.",
+  "datasets": [
+    {
+      "file": "wfa_boys_0_5.json",
+      "indicator": "weight_for_age",
+      "sex": "M",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "kg"
+    },
+    {
+      "file": "wfa_girls_0_5.json",
+      "indicator": "weight_for_age",
+      "sex": "F",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "kg"
+    },
+    {
+      "file": "lhfa_boys_0_5.json",
+      "indicator": "length_height_for_age",
+      "sex": "M",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "cm"
+    },
+    {
+      "file": "lhfa_girls_0_5.json",
+      "indicator": "length_height_for_age",
+      "sex": "F",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "cm"
+    },
+    {
+      "file": "hcfa_boys_0_5.json",
+      "indicator": "head_circumference_for_age",
+      "sex": "M",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "cm"
+    },
+    {
+      "file": "hcfa_girls_0_5.json",
+      "indicator": "head_circumference_for_age",
+      "sex": "F",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "cm"
+    },
+    {
+      "file": "bfa_boys_0_5.json",
+      "indicator": "bmi_for_age",
+      "sex": "M",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "kg/m2"
+    },
+    {
+      "file": "bfa_girls_0_5.json",
+      "indicator": "bmi_for_age",
+      "sex": "F",
+      "version": "WHO-2006",
+      "age_unit": "days",
+      "age_min": 0,
+      "age_max": 1856,
+      "unit": "kg/m2"
+    },
+    {
+      "file": "wfa_boys_5_10.json",
+      "indicator": "weight_for_age",
+      "sex": "M",
+      "version": "WHO-2007",
+      "age_unit": "months",
+      "age_min": 61,
+      "age_max": 121,
+      "unit": "kg"
+    },
+    {
+      "file": "wfa_girls_5_10.json",
+      "indicator": "weight_for_age",
+      "sex": "F",
+      "version": "WHO-2007",
+      "age_unit": "months",
+      "age_min": 61,
+      "age_max": 121,
+      "unit": "kg"
+    },
+    {
+      "file": "lhfa_boys_5_19.json",
+      "indicator": "length_height_for_age",
+      "sex": "M",
+      "version": "WHO-2007",
+      "age_unit": "months",
+      "age_min": 61,
+      "age_max": 229,
+      "unit": "cm"
+    },
+    {
+      "file": "lhfa_girls_5_19.json",
+      "indicator": "length_height_for_age",
+      "sex": "F",
+      "version": "WHO-2007",
+      "age_unit": "months",
+      "age_min": 61,
+      "age_max": 229,
+      "unit": "cm"
+    },
+    {
+      "file": "bfa_boys_5_19.json",
+      "indicator": "bmi_for_age",
+      "sex": "M",
+      "version": "WHO-2007",
+      "age_unit": "months",
+      "age_min": 61,
+      "age_max": 229,
+      "unit": "kg/m2"
+    },
+    {
+      "file": "bfa_girls_5_19.json",
+      "indicator": "bmi_for_age",
+      "sex": "F",
+      "version": "WHO-2007",
+      "age_unit": "months",
+      "age_min": 61,
+      "age_max": 229,
+      "unit": "kg/m2"
+    }
+  ]
+}

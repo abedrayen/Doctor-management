@@ -2,7 +2,7 @@ use rusqlite::{Connection, Row};
 use serde::Serialize;
 use serde_json::{Value, json};
 
-use crate::application::{audit, patients};
+use crate::application::{audit, growth, patients};
 use crate::database::{cols, insert_new, list_records, now, query_all, query_opt, update_row};
 use crate::domain::error::{AppError, AppResult};
 use crate::domain::models::*;
@@ -153,6 +153,15 @@ pub fn finalize(conn: &Connection, id: &str) -> AppResult<ConsultationDetail> {
     update_row(&tx, "consultations", id, &cols!["status" => "finalized", "finalized_at" => now()], true)?;
     audit::log(&tx, "consultation.finalize", "consultation", Some(id), json!({}))?;
     tx.commit()?;
+    let data = &current.record.data;
+    growth::upsert_from_vitals(
+        conn,
+        &data.patient_id,
+        &data.consulted_at,
+        data.poids_kg,
+        data.taille_cm,
+        data.perimetre_cranien_cm,
+    )?;
     detail(conn, id)
 }
 
@@ -211,5 +220,13 @@ pub fn amend(conn: &Connection, id: &str, reason: &str, new_data: ConsultationDa
     let fields: Vec<&String> = changes.iter().map(|(field, _, _)| *field).collect();
     audit::log(&tx, "consultation.amend", "consultation", Some(id), json!({ "fields": fields }))?;
     tx.commit()?;
+    growth::upsert_from_vitals(
+        conn,
+        &new_data.patient_id,
+        &new_data.consulted_at,
+        new_data.poids_kg,
+        new_data.taille_cm,
+        new_data.perimetre_cranien_cm,
+    )?;
     detail(conn, id)
 }
