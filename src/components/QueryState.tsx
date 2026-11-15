@@ -3,6 +3,7 @@ import type { AsyncState } from "@/hooks/useAsync";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/utils/cn";
 
 /** Renders loading skeleton, error with retry, or the data via `children`. */
 export function QueryState<T>({
@@ -14,10 +15,15 @@ export function QueryState<T>({
 }) {
   if (query.data !== undefined) {
     return (
-      <>
+      <div className="relative" aria-busy={query.loading || undefined}>
         {query.error && <ErrorWithRetry message={query.error} onRetry={query.reload} />}
-        {children(query.data)}
-      </>
+        <div className={cn(query.loading && "pointer-events-none opacity-55 transition-opacity")}>{children(query.data)}</div>
+        {query.loading && (
+          <p className="absolute right-3 top-2 rounded-md bg-surface/95 px-2 py-1 text-xs font-semibold text-muted shadow-sm">
+            Mise à jour…
+          </p>
+        )}
+      </div>
     );
   }
   if (query.error) return <ErrorWithRetry message={query.error} onRetry={query.reload} />;

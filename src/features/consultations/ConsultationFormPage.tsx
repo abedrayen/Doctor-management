@@ -185,7 +185,12 @@ function ConsultationForm({
               name="patient_id"
               control={form.control}
               render={({ field }) => (
-                <Field label="Enfant" error={form.formState.errors.patient_id?.message} required>
+                <Field
+                  label="Enfant"
+                  error={form.formState.errors.patient_id?.message}
+                  hint="Recherche et liste réunies dans le même champ."
+                  required
+                >
                   <PatientSelect value={field.value} onChange={field.onChange} disabled={Boolean(detail)} />
                 </Field>
               )}
@@ -231,7 +236,7 @@ function ConsultationForm({
         {error && <Alert variant="error">{error}</Alert>}
         {notice && <Alert variant="success">{notice}</Alert>}
 
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap justify-end gap-2 border-t border-line bg-app/95 px-1 py-3 backdrop-blur">
           <Button variant="outline" onClick={() => navigate(patientId ? `/patients/${patientId}` : "/consultations")}>
             Retour
           </Button>

@@ -18,6 +18,7 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { useAction } from "@/hooks/useAction";
 import { useAsync } from "@/hooks/useAsync";
 import { useSettings } from "@/hooks/useSettings";
+import { useToast } from "@/hooks/useToast";
 import { changePasswordSchema, type ChangePasswordValues } from "@/schemas/authSchemas";
 import { fromSettings, settingsSchema, toSettingsInput, type SettingsValues } from "@/schemas/settingsSchemas";
 import { api } from "@/services/tauri";
@@ -67,6 +68,7 @@ export function SettingsPage() {
 
 function CabinetForm({ settings }: { settings: AppSettings }) {
   const { setSettings } = useSettings();
+  const { push } = useToast();
   const { run, pending, error } = useAction();
   const [saved, setSaved] = useState(false);
   const form = useForm<SettingsValues>({ resolver: zodResolver(settingsSchema), defaultValues: fromSettings(settings) });
@@ -78,6 +80,7 @@ function CabinetForm({ settings }: { settings: AppSettings }) {
       setSettings(updated);
       form.reset(fromSettings(updated));
       setSaved(true);
+      push("Paramètres enregistrés.");
     }
   });
 
@@ -174,10 +177,12 @@ function BackupCard() {
   const [toRestore, setToRestore] = useState<BackupEntry | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const { push } = useToast();
   const createBackup = async () => {
     setMessage(null);
     if (await create.run(() => api.backups.create())) {
       setMessage("Sauvegarde créée.");
+      push("Sauvegarde créée.");
       backups.reload();
     }
   };

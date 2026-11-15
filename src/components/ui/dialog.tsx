@@ -1,4 +1,4 @@
-import { useEffect, useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -16,12 +16,24 @@ interface DialogProps {
 
 export function Dialog({ open, onClose, title, description, children, footer, className }: DialogProps) {
   const titleId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const t = window.setTimeout(() => {
+      const root = panelRef.current;
+      if (!root) return;
+      const focusable = root.querySelector<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      focusable?.focus();
+    }, 0);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.clearTimeout(t);
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -30,6 +42,7 @@ export function Dialog({ open, onClose, title, description, children, footer, cl
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-primary/40 backdrop-blur-[2px]" onClick={onClose} aria-hidden />
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

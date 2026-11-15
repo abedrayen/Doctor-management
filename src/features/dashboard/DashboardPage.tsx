@@ -39,7 +39,7 @@ export function DashboardPage() {
         <Button variant="medical" onClick={() => navigate("/consultations/nouvelle")}>
           <Stethoscope className="size-4" /> Nouvelle consultation
         </Button>
-        <Button variant="outline" onClick={() => navigate("/rendez-vous")}>
+        <Button variant="outline" onClick={() => navigate("/rendez-vous?nouveau=1")}>
           <CalendarPlus className="size-4" /> Ajouter un rendez-vous
         </Button>
         <Button variant="outline" onClick={() => navigate("/patients")}>
@@ -52,8 +52,8 @@ export function DashboardPage() {
           <>
             <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               {STATS.map(({ key, label, icon: Icon, to }) => (
-                <Link key={key} to={to}>
-                  <Card className="p-4 transition-shadow hover:shadow-lg">
+                <Link key={key} to={to} className="block focus-visible:outline-none">
+                  <Card className="h-full p-4 transition-shadow hover:shadow-lg">
                     <div className="flex items-center justify-between">
                       <p className="text-3xl font-bold text-primary">{s[key]}</p>
                       <div className="flex size-10 items-center justify-center rounded-xl bg-medical/10 text-medical">
@@ -68,24 +68,45 @@ export function DashboardPage() {
 
             <div className="grid gap-6 lg:grid-cols-2">
               <Card>
-                <CardHeader title="Rendez-vous du jour" />
+                <CardHeader
+                  title="Rendez-vous du jour"
+                  action={
+                    <Button size="sm" variant="outline" onClick={() => navigate("/rendez-vous?nouveau=1")}>
+                      Nouveau
+                    </Button>
+                  }
+                />
                 <QueryState query={today}>
                   {(rows) =>
                     rows.length === 0 ? (
-                      <EmptyState icon={CalendarDays} title="Aucun rendez-vous aujourd'hui" />
+                      <EmptyState
+                        icon={CalendarDays}
+                        title="Aucun rendez-vous aujourd'hui"
+                        description="Planifiez le prochain créneau depuis l'agenda."
+                        action={
+                          <Button size="sm" onClick={() => navigate("/rendez-vous?nouveau=1")}>
+                            <CalendarPlus className="size-4" /> Ajouter un rendez-vous
+                          </Button>
+                        }
+                      />
                     ) : (
                       <ul className="divide-y divide-line">
                         {[...rows]
                           .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
                           .map((a) => (
-                            <li key={a.id} className="flex items-center justify-between gap-3 px-5 py-3">
-                              <div>
-                                <p className="text-sm font-bold text-primary">
-                                  {formatTime(a.starts_at)} · <span dir="auto">{a.patient_name}</span>
-                                </p>
-                                {a.reason && <p dir="auto" className="text-sm text-muted">{a.reason}</p>}
-                              </div>
-                              <AppointmentStatusBadge status={a.status} />
+                            <li key={a.id}>
+                              <Link
+                                to={`/rendez-vous?date=${encodeURIComponent(a.starts_at.slice(0, 10))}&id=${encodeURIComponent(a.id)}`}
+                                className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-app"
+                              >
+                                <div>
+                                  <p className="text-sm font-bold text-primary">
+                                    {formatTime(a.starts_at)} · <span dir="auto">{a.patient_name}</span>
+                                  </p>
+                                  {a.reason && <p dir="auto" className="text-sm text-muted">{a.reason}</p>}
+                                </div>
+                                <AppointmentStatusBadge status={a.status} />
+                              </Link>
                             </li>
                           ))}
                       </ul>
@@ -95,9 +116,25 @@ export function DashboardPage() {
               </Card>
 
               <Card>
-                <CardHeader title="Patients récents" />
+                <CardHeader
+                  title="Patients récents"
+                  action={
+                    <Button size="sm" variant="outline" onClick={() => navigate("/patients/nouveau")}>
+                      Ajouter
+                    </Button>
+                  }
+                />
                 {s.recent_patients.length === 0 ? (
-                  <EmptyState icon={Users} title="Aucun patient" description="Ajoutez votre premier patient." />
+                  <EmptyState
+                    icon={Users}
+                    title="Aucun patient"
+                    description="Ajoutez votre premier patient pour démarrer."
+                    action={
+                      <Button size="sm" onClick={() => navigate("/patients/nouveau")}>
+                        <UserPlus className="size-4" /> Ajouter un enfant
+                      </Button>
+                    }
+                  />
                 ) : (
                   <ul className="divide-y divide-line">
                     {s.recent_patients.map((p) => (

@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { useAction } from "@/hooks/useAction";
 import { useAsync } from "@/hooks/useAsync";
+import { useToast } from "@/hooks/useToast";
 import { api } from "@/services/tauri";
 import { SEX, type PatientInput, type PatientSummary } from "@/types/models";
 import { formatDate } from "@/utils/dates";
@@ -96,6 +97,7 @@ export function PatientFormPage() {
 
 function PatientForm({ patientId, initial }: { patientId?: string; initial?: PatientFormValues }) {
   const navigate = useNavigate();
+  const { push } = useToast();
   const { run, pending, error } = useAction();
   const [duplicates, setDuplicates] = useState<{ input: PatientInput; matches: PatientSummary[] } | null>(null);
 
@@ -107,6 +109,7 @@ function PatientForm({ patientId, initial }: { patientId?: string; initial?: Pat
   const save = (input: PatientInput) =>
     run(async () => {
       const saved = patientId ? await api.patients.update(patientId, input) : await api.patients.create(input);
+      push(patientId ? "Dossier mis à jour." : "Dossier créé.");
       navigate(`/patients/${saved.id}`);
     });
 
@@ -131,8 +134,8 @@ function PatientForm({ patientId, initial }: { patientId?: string; initial?: Pat
       ))}
 
       {error && <Alert variant="error">{error}</Alert>}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => navigate(-1)}>
+      <div className="sticky bottom-0 z-10 -mx-1 flex justify-end gap-2 border-t border-line bg-app/95 px-1 py-3 backdrop-blur">
+        <Button type="button" variant="outline" onClick={() => navigate(-1)}>
           Annuler
         </Button>
         <Button type="submit" disabled={pending}>

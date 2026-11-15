@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 import {
   CalendarDays,
   FileText,
@@ -14,6 +14,8 @@ import {
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/utils/cn";
 
+const PATIENT_SCOPED = new Set(["/consultations", "/vaccinations", "/croissance", "/documents"]);
+
 export const NAV_ITEMS: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
   { to: "/", label: "Tableau de bord", icon: LayoutDashboard, end: true },
   { to: "/patients", label: "Patients", icon: Users },
@@ -27,6 +29,9 @@ export const NAV_ITEMS: { to: string; label: string; icon: LucideIcon; end?: boo
 
 export function Sidebar() {
   const { settings } = useSettings();
+  const [params] = useSearchParams();
+  const patientId = params.get("patient");
+
   return (
     <aside className="flex w-64 shrink-0 flex-col bg-primary text-white">
       <div className="flex items-center gap-3 px-5 py-5">
@@ -39,22 +44,26 @@ export function Sidebar() {
         </div>
       </div>
       <nav aria-label="Navigation principale" className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
-                isActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white",
-              )
-            }
-          >
-            <Icon className="size-[18px]" aria-hidden />
-            {label}
-          </NavLink>
-        ))}
+        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => {
+          const href =
+            patientId && PATIENT_SCOPED.has(to) ? `${to}?patient=${encodeURIComponent(patientId)}` : to;
+          return (
+            <NavLink
+              key={to}
+              to={href}
+              end={end}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                  isActive ? "bg-white/14 text-white" : "text-white/70 hover:bg-white/8 hover:text-white",
+                )
+              }
+            >
+              <Icon className="size-[18px]" aria-hidden />
+              {label}
+            </NavLink>
+          );
+        })}
       </nav>
     </aside>
   );

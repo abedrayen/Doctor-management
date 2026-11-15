@@ -12,6 +12,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Tabs } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useAction } from "@/hooks/useAction";
+import { useToast } from "@/hooks/useToast";
 import { useAsync } from "@/hooks/useAsync";
 import { api } from "@/services/tauri";
 import { SEX, type PatientOverview } from "@/types/models";
@@ -244,6 +245,7 @@ function PatientConsultations({ patientId }: { patientId: string }) {
 
 function NotesTab({ data, onSaved }: { data: PatientOverview; onSaved: () => void }) {
   const [notes, setNotes] = useState(data.patient.notes);
+  const { push } = useToast();
   const { run, pending, error } = useAction();
   const [saved, setSaved] = useState(false);
 
@@ -252,6 +254,7 @@ function NotesTab({ data, onSaved }: { data: PatientOverview; onSaved: () => voi
     const result = await run(() => api.patients.update(data.patient.id, { ...toPatientInput(fromPatient(data.patient)), notes }));
     if (result) {
       setSaved(true);
+      push("Notes enregistrées.");
       onSaved();
     }
   };

@@ -13,6 +13,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { useAction } from "@/hooks/useAction";
 import { useAsync } from "@/hooks/useAsync";
+import { useToast } from "@/hooks/useToast";
 import {
   emptyVaccinationValues,
   fromVaccinationRecord,
@@ -210,6 +211,7 @@ function VaccinationDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { push } = useToast();
   const { run, pending, error } = useAction();
   const initial: VaccinationValues = row?.record
     ? fromVaccinationRecord(row.record)
@@ -230,7 +232,10 @@ function VaccinationDialog({
         ?.vaccine_code ??
       null;
     const saved = await run(() => api.vaccinations.upsert(row?.record?.id ?? null, toVaccinationInput(patientId, code, values)));
-    if (saved) onSaved();
+    if (saved) {
+      push("Vaccination enregistrée.");
+      onSaved();
+    }
   });
 
   return (

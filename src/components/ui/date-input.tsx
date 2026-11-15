@@ -39,7 +39,7 @@ export function TimeInput({
   return (
     <Input
       inputMode="numeric"
-      placeholder="HH:MM"
+      placeholder="HH:mm"
       maxLength={5}
       autoComplete="off"
       {...props}

@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { useAction } from "@/hooks/useAction";
 import { useAsync } from "@/hooks/useAsync";
+import { useToast } from "@/hooks/useToast";
 import { growthSchema, toGrowthInput, type GrowthValues } from "@/schemas/growthSchemas";
 import { api } from "@/services/tauri";
 import type { GrowthChartData, GrowthMeasurement } from "@/types/models";
@@ -29,8 +30,8 @@ const FIELDS: FieldDef<GrowthValues>[] = [
 export function GrowthPage() {
   return (
     <PatientScope
-      title="Développement staturo-pondéral"
-      description="Courbe de croissance OMS — poids, taille, périmètre crânien et IMC."
+      title="Courbe de croissance"
+      description="Références OMS — poids, taille, périmètre crânien et IMC."
     >
       {(patientId) => <GrowthPanel key={patientId} patientId={patientId} />}
     </PatientScope>
@@ -43,14 +44,6 @@ export function GrowthPanel({ patientId }: { patientId: string }) {
 
   return (
     <div className="space-y-6">
-      <AddMeasurementForm
-        patientId={patientId}
-        onSaved={() => {
-          chart.reload();
-          measurements.reload();
-        }}
-      />
-
       <QueryState query={chart}>
         {(data) => (
           <>
@@ -67,6 +60,14 @@ export function GrowthPanel({ patientId }: { patientId: string }) {
           </>
         )}
       </QueryState>
+
+      <AddMeasurementForm
+        patientId={patientId}
+        onSaved={() => {
+          chart.reload();
+          measurements.reload();
+        }}
+      />
     </div>
   );
 }
@@ -168,6 +169,7 @@ function ScoreCell({
 
 function AddMeasurementForm({ patientId, onSaved }: { patientId: string; onSaved: () => void }) {
   const { run, pending, error } = useAction();
+  const { push } = useToast();
   const defaults: GrowthValues = {
     measured_at: todayIso(),
     weight_kg: "",
@@ -181,6 +183,7 @@ function AddMeasurementForm({ patientId, onSaved }: { patientId: string; onSaved
     const saved = await run(() => api.growth.add(toGrowthInput(patientId, values)));
     if (saved) {
       form.reset({ ...defaults, measured_at: values.measured_at });
+      push("Mesure enregistrée.");
       onSaved();
     }
   });

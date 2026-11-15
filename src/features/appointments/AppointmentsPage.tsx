@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   addDays,
@@ -30,6 +31,7 @@ import { Tabs } from "@/components/ui/tabs";
 import { useAction } from "@/hooks/useAction";
 import { useAsync } from "@/hooks/useAsync";
 import { useSettings } from "@/hooks/useSettings";
+import { useToast } from "@/hooks/useToast";
 import {
   appointmentSchema,
   fromAppointment,
@@ -79,6 +81,7 @@ function titleFor(view: View, anchor: Date) {
 }
 
 export function AppointmentsPage() {
+  const [params, setParams] = useSearchParams();
   const [view, setView] = useState<View>("day");
   const [anchor, setAnchor] = useState(() => new Date());
   const [editing, setEditing] = useState<Appointment | "new" | null>(null);
@@ -89,9 +92,53 @@ export function AppointmentsPage() {
     [view, toIsoDate(anchor)],
   );
 
+  useEffect(() => {
+    const date = params.get("date");
+    if (date) {
+      try {
+        setAnchor(parseISO(date));
+        setView("day");
+      } catch {
+        /* ignore invalid date */
+      }
+    }
+    const next = new URLSearchParams(params);
+    let changed = false;
+    if (params.get("nouveau") === "1") {
+      setEditing("new");
+      next.delete("nouveau");
+      changed = true;
+    }
+    if (date) {
+      next.delete("date");
+      changed = true;
+    }
+    if (changed) setParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deep-link once on mount
+  }, []);
+
+  useEffect(() => {
+    const id = params.get("id");
+    if (!id || !appointments.data) return;
+    const found = appointments.data.find((a) => a.id === id);
+    if (!found) return;
+    setEditing(found);
+    const next = new URLSearchParams(params);
+    next.delete("id");
+    setParams(next, { replace: true });
+  }, [appointments.data, params, setParams]);
+
   const openDay = (day: Date) => {
     setAnchor(day);
     setView("day");
+  };
+
+  const openNew = () => {
+    const next = new URLSearchParams(params);
+    next.delete("nouveau");
+    next.delete("id");
+    setParams(next, { replace: true });
+    setEditing("new");
   };
 
   return (
@@ -100,7 +147,7 @@ export function AppointmentsPage() {
         title="Rendez-vous"
         description="Planning du cabinet."
         actions={
-          <Button onClick={() => setEditing("new")}>
+          <Button onClick={openNew}>
             <Plus className="size-4" /> Ajouter un rendez-vous
           </Button>
         }
@@ -131,7 +178,16 @@ export function AppointmentsPage() {
               if (view === "day") {
                 const list = on(anchor);
                 return list.length === 0 ? (
-                  <EmptyState icon={CalendarDays} title="Aucun rendez-vous ce jour" />
+                  <EmptyState
+                    icon={CalendarDays}
+                    title="Aucun rendez-vous ce jour"
+                    description="Ajoutez un créneau pour ce jour."
+                    action={
+                      <Button size="sm" onClick={openNew}>
+                        <Plus className="size-4" /> Ajouter un rendez-vous
+                      </Button>
+                    }
+                  />
                 ) : (
                   <AppointmentList items={list} onEdit={setEditing} />
                 );
@@ -241,6 +297,7 @@ function AppointmentDialog({
   onSaved: () => void;
 }) {
   const { settings } = useSettings();
+  const { push } = useToast();
   const { run, pending, error } = useAction();
   const form = useForm<AppointmentValues>({
     resolver: zodResolver(appointmentSchema),
@@ -260,11 +317,21 @@ function AppointmentDialog({
   const onSubmit = form.handleSubmit(async (values) => {
     const input = toAppointmentInput(values);
     const saved = await run(() => (appointment ? api.appointments.update(appointment.id, input) : api.appointments.create(input)));
-    if (saved) onSaved();
+    if (saved) {
+      push(appointment ? "Rendez-vous mis à jour." : "Rendez-vous créé.");
+      onSaved();
+    }
   });
 
   const cancelAppointment = async () => {
-    if (appointment && (await run(() => api.appointments.cancel(appointment.id)))) onSaved();
+    if (
+      appointment &&
+      window.confirm("Annuler ce rendez-vous ? Cette action est irréversible.") &&
+      (await run(() => api.appointments.cancel(appointment.id)))
+    ) {
+      push("Rendez-vous annulé.", "warning");
+      onSaved();
+    }
   };
 
   return (
@@ -294,7 +361,12 @@ function AppointmentDialog({
           name="patient_id"
           control={form.control}
           render={({ field }) => (
-            <Field label="Enfant" error={form.formState.errors.patient_id?.message} required>
+            <Field
+              label="Enfant"
+              error={form.formState.errors.patient_id?.message}
+              hint="Recherche et liste réunies dans le même champ."
+              required
+            >
               <PatientSelect value={field.value} onChange={field.onChange} disabled={Boolean(appointment)} />
             </Field>
           )}

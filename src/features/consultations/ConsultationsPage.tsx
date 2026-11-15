@@ -14,7 +14,7 @@ import { useAsync } from "@/hooks/useAsync";
 import { api } from "@/services/tauri";
 import { CONSULTATION_STATUS, CONSULTATION_TYPE, type ConsultationStatus, type ConsultationSummary } from "@/types/models";
 import { formatDateTime } from "@/utils/dates";
-import { PatientSelect } from "../patients/PatientPicker";
+import { PatientSelect, usePatientParam } from "../patients/PatientPicker";
 
 export function ConsultationStatusBadge({ status }: { status: ConsultationStatus }) {
   return <Badge variant={status === "draft" ? "warning" : "success"}>{CONSULTATION_STATUS[status]}</Badge>;
@@ -64,7 +64,7 @@ export function ConsultationTable({ items, showPatient = true }: { items: Consul
 
 export function ConsultationsPage() {
   const navigate = useNavigate();
-  const [patientId, setPatientId] = useState("");
+  const [patientId, setPatientId] = usePatientParam();
   const [status, setStatus] = useState<ConsultationStatus | "">("");
   const consultations = useAsync(
     () => api.consultations.list({ patientId: patientId || null, status: status || null }),
@@ -85,7 +85,7 @@ export function ConsultationsPage() {
       />
       <Card>
         <CardContent className="grid gap-4 border-b border-line md:grid-cols-[1fr_220px]">
-          <Field label="Filtrer par enfant">
+          <Field label="Filtrer par enfant" hint="Conservé lors de la navigation entre modules.">
             <PatientSelect value={patientId} onChange={setPatientId} />
           </Field>
           <Field label="Statut">
@@ -94,7 +94,24 @@ export function ConsultationsPage() {
             </Select>
           </Field>
         </CardContent>
-        <QueryState query={consultations}>{(items) => <ConsultationTable items={items} />}</QueryState>
+        <QueryState query={consultations}>
+          {(items) =>
+            items.length === 0 ? (
+              <EmptyState
+                icon={Stethoscope}
+                title="Aucune consultation"
+                description={patientId ? "Aucune consultation pour cet enfant." : "Aucune consultation ne correspond à ces critères."}
+                action={
+                  <Button size="sm" onClick={() => navigate(newUrl)}>
+                    <Plus className="size-4" /> Nouvelle consultation
+                  </Button>
+                }
+              />
+            ) : (
+              <ConsultationTable items={items} />
+            )
+          }
+        </QueryState>
       </Card>
     </>
   );

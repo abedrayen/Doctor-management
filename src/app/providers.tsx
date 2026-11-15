@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { ToastProvider } from "@/components/Toast";
 import { AuthContext, useAuth, type AuthContextValue, type AuthStatus } from "@/hooks/useAuth";
 import { SettingsContext } from "@/hooks/useSettings";
 import { api, toErrorMessage } from "@/services/tauri";
@@ -93,7 +94,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-      <SettingsProvider>{children}</SettingsProvider>
+      <SettingsProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </SettingsProvider>
     </AuthProvider>
   );
 }

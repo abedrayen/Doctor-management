@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, DatabaseBackup, Lock, LogOut, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -17,34 +17,48 @@ export function TopBar() {
 
   const onSearch = (e: FormEvent) => {
     e.preventDefault();
-    navigate(`/patients?q=${encodeURIComponent(query.trim())}`);
+    const q = query.trim();
+    navigate(q ? `/patients?q=${encodeURIComponent(q)}` : "/patients");
+  };
+
+  const confirmLogout = () => {
+    if (window.confirm("Se déconnecter du cabinet ? Les données restent sur cet ordinateur.")) {
+      void logout();
+    }
   };
 
   return (
-    <div className="flex h-16 shrink-0 items-center gap-4 border-b border-line bg-surface px-6">
-      <form onSubmit={onSearch} role="search" className="relative max-w-md flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher un enfant (nom, référence, téléphone)…"
-          aria-label="Recherche globale"
-          className="pl-9"
-        />
+    <div className="flex h-16 shrink-0 items-center gap-3 border-b border-line bg-surface px-4 sm:px-6">
+      <form onSubmit={onSearch} role="search" className="flex max-w-xl flex-1 items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher un enfant…"
+            aria-label="Recherche globale"
+            className="pl-9"
+          />
+        </div>
+        <Button type="submit" variant="outline" className="shrink-0">
+          Rechercher
+        </Button>
       </form>
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
         <BackupStatus refreshKey={pathname} />
         <Notifications refreshKey={pathname} />
-        <div className="hidden text-right sm:block">
+        <div className="hidden text-right md:block">
           <p className="text-sm font-bold leading-tight text-primary">{doctor?.display_name}</p>
           <p className="text-xs text-muted">{doctor?.specialty}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => void lock()} aria-label="Verrouiller" title="Verrouiller">
+        <Button variant="ghost" size="sm" onClick={() => void lock()} title="Verrouiller la session">
           <Lock className="size-4" />
+          <span className="hidden lg:inline">Verrouiller</span>
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => void logout()} aria-label="Se déconnecter" title="Se déconnecter">
+        <Button variant="ghost" size="sm" onClick={confirmLogout} title="Se déconnecter">
           <LogOut className="size-4" />
+          <span className="hidden lg:inline">Déconnexion</span>
         </Button>
       </div>
     </div>
@@ -63,7 +77,7 @@ function BackupStatus({ refreshKey }: { refreshKey: string }) {
         : "Aucune sauvegarde";
   const variant = backups.error ? "danger" : last ? "success" : "warning";
   return (
-    <Link to="/parametres" title="Gérer les sauvegardes">
+    <Link to="/parametres" title="Gérer les sauvegardes" className="hidden sm:inline-flex">
       <Badge variant={backups.data === undefined && !backups.error ? "neutral" : variant}>
         <DatabaseBackup className="size-3.5" aria-hidden />
         {label}
@@ -74,6 +88,7 @@ function BackupStatus({ refreshKey }: { refreshKey: string }) {
 
 function Notifications({ refreshKey }: { refreshKey: string }) {
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
   const stats = useAsync(() => api.settings.dashboardStats(), [refreshKey]);
   const items = stats.data
     ? [
@@ -83,8 +98,17 @@ function Notifications({ refreshKey }: { refreshKey: string }) {
       ].filter((i) => i.count > 0)
     : [];
 
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!panelRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={panelRef}>
       <Button variant="ghost" size="icon" onClick={() => setOpen((o) => !o)} aria-label="Notifications" aria-expanded={open}>
         <Bell className="size-4" />
         {items.length > 0 && <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-danger" />}
